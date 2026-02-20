@@ -1,0 +1,103 @@
+@use '../../../styles/variables' as v;
+
+.stock-card {
+  background: v.$surface !important;
+  border: 1px solid v.$border;
+  border-radius: 14px !important;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s ease;
+
+  &.signal-buy  { border-color: v.$green; }
+  &.signal-sell { border-color: v.$red; }
+
+  .card-glow {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: 14px 14px 0 0;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  &.signal-buy  .card-glow { background: v.$green; opacity: 1; }
+  &.signal-sell .card-glow { background: v.$red;   opacity: 1; }
+
+  mat-card-header {
+    position: relative;
+    padding-bottom: 0;
+
+    mat-card-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.15rem;
+      color: v.$text;
+    }
+    mat-card-subtitle { color: v.$muted; font-size: 0.68rem; }
+  }
+
+  .source-avatar {
+    display: flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem; font-weight: 700;
+
+    &.live { background: rgba(0,229,160,0.12); color: v.$green; border: 1px solid rgba(0,229,160,0.3); }
+    &.sim  { background: rgba(90,97,120,0.12); color: v.$muted; border: 1px solid rgba(90,97,120,0.2); }
+  }
+
+  .remove-btn {
+    position: absolute; top: 0; right: 0;
+    color: v.$muted !important;
+    &:hover { color: v.$red !important; }
+  }
+
+  mat-card-content { padding-top: 12px; }
+
+  .price-row {
+    display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px;
+    .price {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.65rem; font-weight: 700; color: v.$text;
+    }
+  }
+
+  .chip-up   { background: rgba(0,229,160,0.12) !important; color: v.$green !important; }
+  .chip-down { background: rgba(255,77,106,0.12) !important; color: v.$red   !important; }
+
+  .metrics-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 12px 0;
+
+    .metric {
+      background: v.$surface2; border-radius: 8px; padding: 8px 10px;
+      display: flex; flex-direction: column; gap: 2px;
+
+      .metric-label {
+        font-size: 0.63rem; color: v.$muted; text-transform: uppercase;
+        letter-spacing: 0.07em; font-family: 'Space Mono', monospace;
+      }
+      .metric-value {
+        font-family: 'Space Mono', monospace; font-size: 0.8rem; font-weight: 700; color: v.$text;
+        &.rsi-low  { color: v.$green; }
+        &.rsi-high { color: v.$red; }
+      }
+
+      mat-progress-bar { margin-top: 4px; height: 3px; border-radius: 2px; }
+    }
+  }
+
+  .signal-row { margin-bottom: 6px; }
+
+  .signal-chip {
+    font-family: 'Space Mono', monospace !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.04em !important;
+    font-weight: 700 !important;
+
+    &.chip-buy   { background: rgba(0,229,160,0.15) !important; color: v.$green  !important; border: 1px solid rgba(0,229,160,0.3); }
+    &.chip-sell  { background: rgba(255,77,106,0.15) !important; color: v.$red    !important; border: 1px solid rgba(255,77,106,0.3); }
+    &.chip-watch { background: rgba(245,200,66,0.12) !important; color: v.$yellow !important; border: 1px solid rgba(245,200,66,0.25); }
+    &.chip-hold  { background: rgba(90,97,120,0.12) !important;  color: v.$muted  !important; border: 1px solid rgba(90,97,120,0.2); }
+  }
+
+  .signal-reasons { font-size: 0.71rem; color: v.$muted; line-height: 1.4; }
+  .error-text     { font-size: 0.7rem;  color: v.$red;   margin-top: 6px; }
+}

@@ -1,0 +1,114 @@
+@use '../../../styles/variables' as v;
+
+.page-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+// ── API Banner ──────────────────────────────────────
+.api-banner {
+  background: v.$surface !important;
+  border: 1px solid v.$yellow !important;
+  border-radius: 14px !important;
+  margin-bottom: 28px;
+
+  .api-banner-inner {
+    display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap;
+  }
+
+  .key-icon { color: v.$yellow; font-size: 2rem; margin-top: 2px; }
+
+  .api-text {
+    flex: 1; min-width: 220px;
+    strong { color: v.$text; font-size: 0.9rem; }
+    p { color: v.$muted; font-size: 0.77rem; margin-top: 4px; line-height: 1.5; }
+    a { color: v.$yellow; text-decoration: none; &:hover { text-decoration: underline; } }
+  }
+
+  .api-input-row {
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    .key-field { width: 260px; }
+  }
+}
+
+// ── Header ──────────────────────────────────────────
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid v.$border;
+  flex-wrap: wrap; gap: 12px;
+}
+
+.logo {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.15rem; color: v.$accent; letter-spacing: -0.02em;
+}
+
+.header-right {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+
+.mode-live { background: rgba(0,229,160,0.1) !important; color: v.$green !important; border: 1px solid rgba(0,229,160,0.25) !important; font-family: 'Space Mono', monospace !important; font-size: 0.7rem !important; }
+.mode-sim  { background: rgba(90,97,120,0.12) !important; color: v.$muted !important; border: 1px solid rgba(90,97,120,0.2) !important; font-family: 'Space Mono', monospace !important; font-size: 0.7rem !important; }
+
+.auto-refresh-label { font-size: 0.72rem; color: v.$muted; font-family: 'Space Mono', monospace; text-transform: uppercase; letter-spacing: 0.06em; }
+
+.change-key-btn { color: v.$muted !important; border-color: v.$border !important; font-size: 0.78rem; }
+
+// ── Controls ────────────────────────────────────────
+.controls-row {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;
+  .ticker-field { width: 140px; }
+}
+
+.spinning {
+  animation: spin 0.8s linear infinite;
+  @keyframes spin { to { transform: rotate(360deg); } }
+}
+
+// ── Cards ────────────────────────────────────────────
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+// ── Empty state ──────────────────────────────────────
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 64px; color: v.$muted; gap: 12px;
+  mat-icon { font-size: 2.5rem; width: 2.5rem; height: 2.5rem; }
+  p { font-size: 0.9rem; }
+}
+
+// ── Alerts ───────────────────────────────────────────
+.section-title {
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em;
+  color: v.$muted; font-family: 'Space Mono', monospace; margin-bottom: 10px;
+}
+
+.alerts-card {
+  background: v.$surface !important;
+  border: 1px solid v.$border !important;
+  border-radius: 12px !important;
+  max-height: 220px; overflow-y: auto;
+}
+
+.no-alerts { text-align: center; color: v.$muted; font-size: 0.8rem; padding: 20px 0; }
+
+.alert-list { display: flex; flex-direction: column; }
+
+.alert-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 8px 0; border-bottom: 1px solid v.$border;
+  font-size: 0.8rem;
+  &:last-child { border-bottom: none; }
+}
+
+.alert-time   { font-family: 'Space Mono', monospace; color: v.$muted; font-size: 0.68rem; min-width: 64px; }
+.alert-ticker { font-family: 'Space Mono', monospace; font-weight: 700; min-width: 50px;
+  &.alert-buy  { color: v.$green; }
+  &.alert-sell { color: v.$red; }
+}
+.alert-msg { color: v.$muted; flex: 1; }

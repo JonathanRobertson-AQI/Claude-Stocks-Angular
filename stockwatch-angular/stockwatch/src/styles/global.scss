@@ -1,0 +1,35 @@
+@use 'variables' as v;
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0;
+  background: v.$bg;
+  color: v.$text;
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+}
+
+// Material overrides to match dark theme
+.mat-mdc-card { background: v.$surface !important; color: v.$text !important; }
+.mat-mdc-form-field .mdc-text-field { background: v.$surface2 !important; }
+.mat-mdc-form-field .mdc-floating-label { color: v.$muted !important; }
+.mat-mdc-input-element { color: v.$text !important; caret-color: v.$accent !important; }
+.mdc-text-field--outlined .mdc-notched-outline__leading,
+.mdc-text-field--outlined .mdc-notched-outline__notch,
+.mdc-text-field--outlined .mdc-notched-outline__trailing {
+  border-color: v.$border !important;
+}
+.mdc-text-field--outlined.mdc-text-field--focused .mdc-notched-outline__leading,
+.mdc-text-field--outlined.mdc-text-field--focused .mdc-notched-outline__notch,
+.mdc-text-field--outlined.mdc-text-field--focused .mdc-notched-outline__trailing {
+  border-color: v.$accent !important;
+}
+.mat-mdc-chip { font-size: 0.78rem; }
+
+// Scrollbar
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: v.$border; border-radius: 2px; }

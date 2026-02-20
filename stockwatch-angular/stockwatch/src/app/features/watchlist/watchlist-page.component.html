@@ -1,0 +1,106 @@
+<div class="page-container">
+
+  <!-- ── API Key Banner ───────────────────────────── -->
+  <mat-card class="api-banner" *ngIf="!hasKey">
+    <mat-card-content>
+      <div class="api-banner-inner">
+        <mat-icon class="key-icon">vpn_key</mat-icon>
+        <div class="api-text">
+          <strong>Connect your Polygon.io / Massive API key</strong>
+          <p>
+            Get a free key at
+            <a href="https://polygon.io" target="_blank">polygon.io</a>
+            → Sign up → Dashboard → API Keys.
+            Free tier includes 15-min delayed quotes. Key is stored in your browser only.
+          </p>
+        </div>
+        <div class="api-input-row">
+          <mat-form-field appearance="outline" class="key-field">
+            <mat-label>API Key</mat-label>
+            <input matInput
+              [value]="apiKeyDraft()"
+              (input)="apiKeyDraft.set($any($event.target).value)"
+              (keydown.enter)="saveKey()"
+              placeholder="Paste your key here"
+              type="password" />
+          </mat-form-field>
+          <button mat-flat-button color="accent" (click)="saveKey()">
+            Save Key
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- ── Header ───────────────────────────────────── -->
+  <div class="page-header">
+    <div class="logo">◈ stockwatch</div>
+    <div class="header-right">
+      <mat-chip [ngClass]="isLive ? 'mode-live' : 'mode-sim'">
+        {{ isLive ? '● LIVE (15m delay)' : '● SIMULATED' }}
+      </mat-chip>
+      <span class="auto-refresh-label">auto-refresh 60s</span>
+      <button mat-stroked-button *ngIf="hasKey" (click)="clearKey()" class="change-key-btn">
+        Change API Key
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Add + Refresh row ─────────────────────────── -->
+  <div class="controls-row">
+    <mat-form-field appearance="outline" class="ticker-field">
+      <mat-label>Ticker</mat-label>
+      <input matInput
+        [value]="newTicker()"
+        (input)="newTicker.set($any($event.target).value.toUpperCase())"
+        (keydown.enter)="addStock()"
+        placeholder="AAPL"
+        maxlength="6" />
+    </mat-form-field>
+
+    <button mat-flat-button color="primary" (click)="addStock()">
+      <mat-icon>add</mat-icon> Add Stock
+    </button>
+
+    <button mat-stroked-button (click)="refreshAll()" [disabled]="refreshing()">
+      <mat-icon [class.spinning]="refreshing()">refresh</mat-icon>
+      Refresh
+    </button>
+  </div>
+
+  <!-- ── Cards grid ───────────────────────────────── -->
+  <div class="cards-grid" *ngIf="quotesArray.length > 0; else emptyState">
+    <app-stock-card
+      *ngFor="let quote of quotesArray; trackBy: trackByTicker"
+      [quote]="quote">
+    </app-stock-card>
+  </div>
+
+  <ng-template #emptyState>
+    <div class="empty-state">
+      <mat-icon>show_chart</mat-icon>
+      <p>Add a ticker above to start watching</p>
+    </div>
+  </ng-template>
+
+  <!-- ── Alert Log ─────────────────────────────────── -->
+  <div class="alerts-section">
+    <h3 class="section-title">Alert Log</h3>
+    <mat-card class="alerts-card">
+      <mat-card-content>
+        <div *ngIf="alerts.length === 0" class="no-alerts">No alerts yet</div>
+        <div class="alert-list">
+          <div class="alert-row" *ngFor="let alert of alerts">
+            <span class="alert-time">{{ alert.time }}</span>
+            <span class="alert-ticker" [ngClass]="'alert-' + alert.signal">{{ alert.ticker }}</span>
+            <span class="alert-msg">
+              {{ alert.signal === 'buy' ? '▲ Buy' : '▼ Sell' }} signal at
+              {{ alert.price | currency:'USD':'symbol':'1.2-2' }}
+            </span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+</div>
