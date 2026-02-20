@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { catchError, forkJoin, of } from 'rxjs';
 import { StockQuote, AlertEntry } from '@core/models/stock.model';
-import { PolygonService } from '@core/services/polygon.service';
+import { PolygonService, PrevCloseResult } from '@core/services/polygon.service';
 import { ApiKeyService } from '@core/services/api-key.service';
 import { SignalService } from '@core/services/signal.service';
 
@@ -12,9 +12,9 @@ const MOCK_PRICES: Record<string, number> = {
 
 @Injectable({ providedIn: 'root' })
 export class WatchlistService {
-  private polygon    = inject(PolygonService);
-  private apiKeySvc  = inject(ApiKeyService);
-  private signalSvc  = inject(SignalService);
+  private polygon   = inject(PolygonService);
+  private apiKeySvc = inject(ApiKeyService);
+  private signalSvc = inject(SignalService);
 
   readonly quotes  = signal<Map<string, StockQuote>>(new Map());
   readonly alerts  = signal<AlertEntry[]>([]);
@@ -39,13 +39,14 @@ export class WatchlistService {
   }
 
   // ── Load one ticker ───────────────────────────────
+  // First load: 2 API calls (prevClose + history).
+  // Subsequent refreshes: 1 API call (prevClose only; history served from cache).
   load(ticker: string): void {
-    this.loading.update(s => { const n = new Set(s); n.add(ticker); return n; });
+    this.setLoading(ticker, true);
 
     if (!this.apiKeySvc.hasKey()) {
-      const quote = this.simulate(ticker);
-      this.upsert(ticker, quote);
-      this.loading.update(s => { const n = new Set(s); n.delete(ticker); return n; });
+      this.upsert(ticker, this.simulate(ticker));
+      this.setLoading(ticker, false);
       return;
     }
 
@@ -57,32 +58,43 @@ export class WatchlistService {
     ).subscribe(data => {
       if (!data) {
         const fallback = this.simulate(ticker);
-        fallback.error = `⚠ API error — showing simulated data`;
+        fallback.error = '⚠ API error — showing simulated data';
         this.upsert(ticker, fallback);
       } else {
-        const { snapshot, history } = data;
-        const price = snapshot.lastTrade?.p ?? snapshot.day?.c ?? snapshot.prevDay?.c ?? history.at(-1)!;
-        const prevClose = snapshot.prevDay?.c ?? history.at(-2)!;
-        const fullHistory = [...history];
-        if (price !== fullHistory.at(-1)) fullHistory.push(price);
-
-        this.upsert(ticker, {
-          ticker, price, prevClose,
-          changePerc: snapshot.todaysChangePerc ?? ((price - prevClose) / prevClose * 100),
-          history: fullHistory, source: 'live',
-          updatedAt: new Date().toLocaleTimeString()
-        });
+        this.upsertFromApiData(ticker, data.prevClose, data.history);
       }
-      this.loading.update(s => { const n = new Set(s); n.delete(ticker); return n; });
+      this.setLoading(ticker, false);
+    });
+  }
+
+  // ── Refresh all — N prevClose calls, 0 history calls (all cached) ──
+  refreshAll(): void {
+    this.tickers().forEach(t => this.load(t));
+  }
+
+  private upsertFromApiData(ticker: string, prevClose: PrevCloseResult, history: number[]): void {
+    // Previous close IS the price on the free tier — no real-time last trade available
+    const price     = prevClose.close;
+    const prevDay   = history.at(-2) ?? price;
+    const fullHistory = [...history];
+    if (price !== fullHistory.at(-1)) fullHistory.push(price);
+
+    const changePerc = prevDay !== 0
+      ? ((price - prevDay) / prevDay) * 100
+      : 0;
+
+    this.upsert(ticker, {
+      ticker, price, prevClose: prevDay, changePerc,
+      history: fullHistory, source: 'live',
+      updatedAt: `${prevClose.from} close`
     });
   }
 
   private upsert(ticker: string, incoming: StockQuote): void {
-    const prevQuote = this.quotes().get(ticker);
+    const prevQuote  = this.quotes().get(ticker);
     const prevSignal = prevQuote ? this.signalSvc.getSignal(prevQuote.history).signal : null;
     const newSignal  = this.signalSvc.getSignal(incoming.history).signal;
 
-    // Fire alert if signal changed to buy/sell
     if (prevSignal && newSignal !== prevSignal && (newSignal === 'buy' || newSignal === 'sell')) {
       this.alerts.update(a => [{
         time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
@@ -97,6 +109,14 @@ export class WatchlistService {
     });
   }
 
+  private setLoading(ticker: string, state: boolean): void {
+    this.loading.update(s => {
+      const n = new Set(s);
+      state ? n.add(ticker) : n.delete(ticker);
+      return n;
+    });
+  }
+
   // ── Public API ────────────────────────────────────
   add(ticker: string): void {
     if (this.quotes().has(ticker)) return;
@@ -105,11 +125,8 @@ export class WatchlistService {
   }
 
   remove(ticker: string): void {
+    this.polygon.clearHistoryCache(ticker);
     this.quotes.update(m => { const n = new Map(m); n.delete(ticker); return n; });
-  }
-
-  refreshAll(): void {
-    this.tickers().forEach(t => this.load(t));
   }
 
   isLoading(ticker: string): boolean {

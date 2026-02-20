@@ -112,3 +112,16 @@
   &.alert-sell { color: v.$red; }
 }
 .alert-msg { color: v.$muted; flex: 1; }
+
+.queue-chip {
+  background: rgba(255, 193, 7, 0.15) !important;
+  color: #ffc107 !important;
+  font-size: 0.75rem !important;
+  font-family: 'Space Mono', monospace;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}

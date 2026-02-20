@@ -28,14 +28,6 @@ export interface AlertEntry {
 }
 
 // Polygon API response shapes
-export interface PolygonSnapshot {
-  ticker: string;
-  todaysChangePerc: number;
-  lastTrade?: { p: number };
-  day?: { c: number };
-  prevDay?: { c: number };
-}
-
 export interface PolygonAgg {
   c: number;  // close
   o: number;  // open
